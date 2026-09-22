@@ -1,29 +1,160 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { ArrowDown, ArrowLeft, ArrowRight, Camera, Check, Menu, MessageCircle, Quote, Send, Share2, Smartphone, X, Zap } from 'lucide-react'
+import {
+  ArrowRight, ArrowUp, Camera, Check, MessageCircle, Mail,
+  MapPin, Menu, Send, Share2, X,
+} from 'lucide-react'
 import './App.css'
+import { brand, footerAbout, navLinks } from './content'
+import { Home } from './pages'
+import { About, Contact, CtaBand, Pricing, Solutions } from './pages2'
 
-const imageUrls = {
-  feature: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-rHvhxR3FgwdzN1g8OAXiNO68D1TFJw.png',
-  process: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-0oIVsQqF1NIJQ11SgdjBoVaodKijaX.png',
-  world: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-HWDd16twiegx8talXuYEvmzoaGDlYp.png',
-  team: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-jJqBgPJUpBo1oBS229VLTBA2kll5YM.png',
+function Header() {
+  const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  useEffect(() => {
+    document.body.classList.toggle('nav-open', open)
+    return () => document.body.classList.remove('nav-open')
+  }, [open])
+  return (
+    <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
+      <div className="container nav-wrap">
+        <Link to="/" className="brand" aria-label="TulaPay home">
+          <span className="brand-mark">t</span>
+          <span className="brand-name">tula<span>pay</span></span>
+        </Link>
+        <nav id="primary-nav" className={open ? 'nav-links open' : 'nav-links'} aria-label="Primary">
+          {navLinks.map(l => (
+            <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')} end={l.to === '/'}>
+              {l.label}
+            </NavLink>
+          ))}
+          <Link to="/contact" className="nav-button" onClick={() => setOpen(false)}>Book a Demo <ArrowRight size={15} /></Link>
+        </nav>
+        <button className="menu-button" onClick={() => setOpen(o => !o)} aria-expanded={open} aria-controls="primary-nav" aria-label="Toggle menu">
+          {open ? <X size={26} /> : <Menu size={26} />}
+        </button>
+      </div>
+    </header>
+  )
 }
 
-const nav = [{ label: 'Home', to: '/' }, { label: 'About Us', to: '/about' }, { label: 'Services', to: '/services' }, { label: 'Pricing', to: '/pricing' }, { label: 'Contact Us', to: '/contact' }]
+function Footer() {
+  const [subscribed, setSubscribed] = useState(false)
+  return (
+    <footer className="footer">
+      <div className="container footer-grid">
+        <div className="footer-brand">
+          <Link to="/" className="brand"><span className="brand-mark">t</span><span className="brand-name">tula<span>pay</span></span></Link>
+          <p>{footerAbout}</p>
+          <div className="socials">
+            <a href="#" aria-label="LinkedIn"><Share2 size={16} /></a>
+            <a href="#" aria-label="Twitter / X"><Send size={16} /></a>
+            <a href="#" aria-label="Facebook"><MessageCircle size={16} /></a>
+            <a href="#" aria-label="Instagram"><Camera size={16} /></a>
+          </div>
+        </div>
+        <div>
+          <h4>Platform</h4>
+          <Link to="/solutions">Solutions</Link>
+          <Link to="/solutions#payments">Unified Payments</Link>
+          <Link to="/solutions#intelligence">Business Intelligence</Link>
+          <Link to="/solutions#working-capital">Working Capital</Link>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <Link to="/about">About TulaPay</Link>
+          <Link to="/pricing">Pricing</Link>
+          <Link to="/contact">Contact us</Link>
+          <Link to="/contact">Careers & Talent</Link>
+        </div>
+        <div>
+          <h4>Get the latest</h4>
+          <p>Product news and insights for Cameroonian businesses. No spam.</p>
+          {subscribed ? (
+            <p className="subscribed"><Check size={15} /> You're on the list — thank you.</p>
+          ) : (
+            <form
+              className="newsletter"
+              onSubmit={e => {
+                e.preventDefault()
+                setSubscribed(true)
+              }}
+            >
+              <input aria-label="Your email address" type="email" required placeholder="Your email address" />
+              <button aria-label="Subscribe"><Send size={17} /></button>
+            </form>
+          )}
+          <p className="footer-contact"><Mail size={14} /> {brand.email}</p>
+          <p className="footer-contact"><MapPin size={14} /> {brand.locations}</p>
+        </div>
+      </div>
+      <div className="container footer-disclaimer">{brand.regulatory}</div>
+      <div className="container footer-bottom">
+        <span>© 2026 TulaPay · {brand.locations}</span>
+        <span>Settlement in XAF / FCFA (BEAC) · Privacy Policy & Terms</span>
+      </div>
+    </footer>
+  )
+}
 
-function Reveal({ children, className = '' }: { children: React.ReactNode; className?: string }) { return <div className={`reveal ${className}`}>{children}</div> }
-function Header() { const [open, setOpen] = useState(false); const location = useLocation(); useEffect(() => setOpen(false), [location.pathname]); return <header className="site-header"><div className="container nav-wrap"><Link to="/" className="brand"><span className="brand-mark">t</span><span>tula<span>pay</span></span></Link><nav className={open ? 'nav-links open' : 'nav-links'}>{nav.map(item => <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? 'active' : ''}>{item.label}</NavLink>)}<Link to="/contact" className="nav-button">Get Started <ArrowRight size={16}/></Link></nav><button className="menu-button" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X/> : <Menu/>}</button></div></header> }
-function Footer() { return <footer className="footer"><div className="container footer-grid"><div><Link to="/" className="brand"><span className="brand-mark">t</span><span>tula<span>pay</span></span></Link><p>Unlocking the power of digital payments for Africa and beyond.</p><div className="socials"><a href="#" aria-label="Facebook"><Share2 size={17}/></a><a href="#" aria-label="Instagram"><Camera size={17}/></a><a href="#" aria-label="LinkedIn"><MessageCircle size={17}/></a><a href="#" aria-label="Twitter"><Send size={17}/></a></div></div><div><h4>Company</h4><Link to="/about">About us</Link><Link to="/services">Services</Link><Link to="/pricing">Pricing</Link></div><div><h4>Support</h4><Link to="/contact">Contact us</Link><a href="#faq">FAQs</a><a href="#">Privacy policy</a></div><div><h4>Newsletter</h4><p>Get the latest news and updates.</p><div className="newsletter"><input aria-label="Your email address" placeholder="Your email address"/><button aria-label="Subscribe"><ArrowRight size={18}/></button></div></div></div><div className="container footer-bottom"><span>© 2026 TulaPay. All rights reserved.</span><span>Made for progress.</span></div></footer> }
-function SectionTitle({ eyebrow, children }: { eyebrow?: string; children: React.ReactNode }) { return <div className="section-title">{eyebrow && <div className="eyebrow">{eyebrow}</div>}<h2>{children}</h2></div> }
-function Home() { return <><section className="hero"><div className="container hero-content"><Reveal><div className="eyebrow">The future of payments is here</div><h1>Unlocking the power of <span>digital payments</span></h1><p>TulaPay makes payments simpler, faster, and more accessible for people and businesses everywhere.</p><div className="hero-actions"><Link to="/contact" className="button primary">Get Started <ArrowRight size={18}/></Link><a className="button outline" href="#features">Explore more <ArrowDown size={17}/></a></div></Reveal><Reveal className="hero-visual"><div className="hero-orbit orbit-a"/><div className="hero-orbit orbit-b"/><div className="payment-card"><div className="card-brand">tulapay</div><small>Available balance</small><strong>₦ 2,450,000<sup>.00</sup></strong><div className="card-footer"><span>•••• 9012</span><span>VISA</span></div></div><div className="hero-phone"><Smartphone size={28}/><span>Send money</span><b>₦263.00</b><i>Payment successful</i></div></Reveal></div><a href="#logos" className="scroll-cue"><span>Scroll to explore</span><ArrowDown size={18}/></a></section><section className="logos" id="logos"><div className="container logo-row"><b>Logoipsum</b><b>Logoipsum</b><b>Logoipsum</b><b>Logoipsum</b></div></section><section className="section features" id="features"><Reveal><SectionTitle>Unlocking the power of <span>digital payments</span></SectionTitle><p className="section-lead">At TulaPay, we make it easy to move, manage, and grow your money with confidence.</p></Reveal><div className="feature-grid">{[['Market Share','Reach more customers and grow your business with confidence.'],['Easy Payment','Simple, secure payments built around your everyday needs.'],['Awesome Services','Powerful financial tools that help you move forward.']].map(([title,text], i) => <Reveal className="feature-card" key={title}><div className="gradient-icon">{[<Zap size={30}/>, <Check size={32}/>, <ArrowRight size={32}/>][i]}</div><h3>{title}</h3><p>{text}</p></Reveal>)}</div></section><section className="image-band"><div className="container image-panel"><img src={imageUrls.feature} alt="TulaPay customer using a mobile payment app"/><div className="image-copy"><h2>Replacing complexity<br/><span>with simplicity</span></h2><p>We take the friction out of financial services, so you can focus on what matters most.</p><Link to="/services" className="button outline">Explore services <ArrowRight size={17}/></Link></div></div></section><section className="section process"><div className="container process-grid"><Reveal className="process-art"><img src={imageUrls.process} alt="TulaPay mobile payment experience"/></Reveal><Reveal><SectionTitle>Simplify your<br/><span>payment processes</span></SectionTitle><p className="section-lead">Everything you need to send, receive, and manage money is right at your fingertips.</p><div className="steps">{['Create Account','User Configuration','Enjoy Full Access'].map((x, i) => <div className="step" key={x}><div className="step-icon">0{i + 1}</div><div><h3>{x}</h3><p>Get started in minutes with a simple, secure experience designed for you.</p></div></div>)}</div><Link to="/contact" className="button outline">Get Started <ArrowRight size={17}/></Link></Reveal></div></section><section className="section world"><div className="container world-grid"><Reveal><SectionTitle>We are round the<br/><span>world</span></SectionTitle><p className="section-lead">Financial access should have no borders. TulaPay helps people and businesses move confidently across the world.</p><div className="stat-grid">{[['100K+','Active users'],['400K+','App downloads'],['90%','Satisfied users'],['200+','Partners joined']].map(([num,label]) => <div className="stat-box" key={label}><strong>{num}</strong><span>{label}</span></div>)}</div></Reveal><Reveal><img className="world-image" src={imageUrls.world} alt="TulaPay card and phone on a desk"/></Reveal></div></section><Team/><Testimonials/><section className="cta-band"><div className="container"><SectionTitle>Ready to move<br/><span>forward?</span></SectionTitle><Link to="/contact" className="button primary">Get started today <ArrowRight size={18}/></Link></div></section></> }
-function Team() { return <section className="section team"><div className="container"><SectionTitle>How&apos;s behind</SectionTitle><p className="section-lead centered">The people building a simpler financial future.</p><div className="team-grid"><div className="person"><img src={imageUrls.team} alt="TulaPay team member"/><div><h3>Pamela Brown</h3><p>Making digital payments more accessible, one thoughtful experience at a time.</p><div className="socials"><a href="#" aria-label="Facebook"><Share2 size={16}/></a><a href="#" aria-label="Instagram"><Camera size={16}/></a></div></div></div><div className="person"><img src={imageUrls.team} alt="TulaPay team member"/><div><h3>Emma White</h3><p>Helping our partners grow through technology that works for everyone.</p><div className="socials"><a href="#" aria-label="LinkedIn"><MessageCircle size={16}/></a><a href="#" aria-label="Twitter"><Send size={16}/></a></div></div></div></div></div></section> }
-function Testimonials() { return <section className="section testimonials"><div className="container"><SectionTitle>Trusted by professionals</SectionTitle><p className="section-lead centered">Real people. Real progress. A better way to move money.</p><div className="testimonial-card"><Quote className="quote" size={62}/><p>“TulaPay has made the way we manage our payments feel effortless. It is secure, simple, and genuinely built around how people work.”</p><div className="stars">★★★★★</div><h3>Johnny Stone</h3><span>Entrepreneur</span><button className="slider left" aria-label="Previous testimonial"><ArrowLeft size={20}/></button><button className="slider right" aria-label="Next testimonial"><ArrowRight size={20}/></button></div></div></section> }
-function PageHero({ label, title, sub }: { label: string; title: React.ReactNode; sub: string }) { return <section className="page-hero"><div className="container"><div className="eyebrow">{label}</div><h1>{title}</h1><p>{sub}</p></div></section> }
-function About() { return <><PageHero label="Our story" title={<>Built to make<br/><span>progress possible.</span></>} sub="TulaPay is creating a more connected financial future, one simple experience at a time."/><section className="section about-content"><div className="about-number">01<br/><small>Our mission</small></div><div><SectionTitle>Finance shouldn&apos;t be<br/><span>complicated.</span></SectionTitle><p className="section-lead">We believe everyone deserves access to financial tools that are clear, inclusive, and built around real life. TulaPay brings payments and financial services together in one trusted place.</p><p className="section-lead">We&apos;re building the infrastructure for a world where money moves as freely as ideas do.</p></div></section><section className="section values"><div className="container"><SectionTitle>What guides us</SectionTitle><div className="values-grid">{['Keep it simple','Build with trust','Think beyond today'].map((x, i) => <div className="value" key={x}><span>0{i + 1}</span><h3>{x}</h3><p>Clarity is a feature. We remove friction from every experience.</p></div>)}</div></div></section></> }
-function Services() { return <><PageHero label="What we do" title={<>The tools to<br/><span>move forward.</span></>} sub="Simple, powerful financial services designed around the way you live and work."/><section className="section service-list">{[['01','Payments','Pay bills, shop online, and handle everyday expenses with ease.'],['02','Send money','Move money to friends, family, and partners quickly and securely.'],['03','Business tools','Power your business with seamless collections and smart financial tools.'],['04','TulaPay card','A card that puts your money within reach, wherever life takes you.']].map(([n,t,d]) => <div className="service-row" key={t}><span>{n}</span><h2>{t}</h2><p>{d}</p><ArrowRight/></div>)}</section></> }
-function Pricing() { return <><PageHero label="Simple pricing" title={<>More value.<br/><span>Less friction.</span></>} sub="Transparent pricing that works for you, whether you&apos;re getting started or scaling up."/><section className="section pricing-grid">{[['Personal','For everyday money movement','Free'],['Business','For ambitious businesses','Custom']].map(([name, desc, price], i) => <div className={`price-card ${i ? 'featured' : ''}`} key={name}><div className="eyebrow">{name}</div><p>{desc}</p><strong>{price}</strong>{['No monthly fees','Fast transfers','Secure payments','24/7 support'].map(x => <div className="check-row" key={x}><Check size={16}/>{x}</div>)}<Link className="button primary" to="/contact">Get started <ArrowRight size={17}/></Link></div>)}</section></> }
-function Contact() { const [sent, setSent] = useState(false); return <><PageHero label="Say hello" title={<>Let&apos;s start<br/><span>something good.</span></>} sub="Have a question, an idea, or just want to talk? Our team is here for you."/><section className="section contact-grid"><div><SectionTitle>We&apos;d love to<br/><span>hear from you.</span></SectionTitle><p className="section-lead">Fill in the form and someone from our team will get back to you as soon as possible.</p><div className="contact-details"><small>Email us</small><strong>hello@tulapay.ai</strong><small>Follow along</small><strong>@tulapay</strong></div></div><form onSubmit={e => { e.preventDefault(); setSent(true) }}>{sent ? <div className="success"><Check size={34}/><h3>Message received.</h3><p>Thanks for reaching out. We&apos;ll be in touch soon.</p></div> : <><label>Name<input required placeholder="Your name"/></label><label>Email<input required type="email" placeholder="you@example.com"/></label><label>How can we help?<textarea required rows={5} placeholder="Tell us a little about your question..."/></label><button className="button primary" type="submit">Send message <ArrowRight size={18}/></button></>}</form></section></> }
-function NotFound() { return <div className="not-found"><div className="eyebrow">Page not found</div><h1>Looks like this<br/><span>page moved.</span></h1><Link to="/" className="button primary">Back home <ArrowRight size={18}/></Link></div> }
-function App() { return <BrowserRouter><Header/><main><Routes><Route path="/" element={<Home/>}/><Route path="/about" element={<About/>}/><Route path="/services" element={<Services/>}/><Route path="/pricing" element={<Pricing/>}/><Route path="/contact" element={<Contact/>}/><Route path="*" element={<NotFound/>}/></Routes></main><Footer/></BrowserRouter> }
-export default App
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
+function BackTop() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 600)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  if (!show) return null
+  return (
+    <button className="back-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
+      <ArrowUp size={18} />
+    </button>
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="not-found">
+      <div className="eyebrow">Page not found</div>
+      <h1>Looks like this page<br /><span className="grad">moved.</span></h1>
+      <Link to="/" className="button primary">Back home <ArrowRight size={17} /></Link>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ScrollToTop />
+      <Header />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/solutions" element={<Solutions />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <CtaBand />
+      <Footer />
+      <BackTop />
+    </BrowserRouter>
+  )
+}
